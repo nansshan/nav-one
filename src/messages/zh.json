@@ -1,0 +1,62 @@
+{
+  "common": {
+    "welcome": "欢迎",
+    "home": "首页",
+    "about": "关于",
+    "contact": "联系我们",
+    "language": "语言"
+  },
+  "home": {
+    "title": "欢迎访问我们的网站",
+    "description": "这是一个使用 Next.js 和 next-intl 构建的多语言网站"
+  },
+  "error": {
+    "notFound": "页面未找到",
+    "backHome": "返回首页"
+  },
+  "nav": {
+    "search": "搜索",
+    "category": "分类",
+    "tag": "标签",
+    "blog": "博客",
+    "pricing": "定价",
+    "submit": "提交",
+    "signIn": "登录",
+    "language": {
+      "english": "英文",
+      "chinese": "中文"
+    }
+  },
+  "footer": {
+    "description": "这是 Mkdirs 的演示站点，终极目录网站模板",
+    "builtWith": "基于",
+    "product": {
+      "title": "产品",
+      "landing": "首页",
+      "search": "搜索",
+      "category": "分类",
+      "tag": "标签"
+    },
+    "resources": {
+      "title": "资源",
+      "pricing": "定价",
+      "submit": "提交",
+      "blog": "博客",
+      "changelog": "更新日志"
+    },
+    "support": {
+      "title": "支持",
+      "github": "GitHub",
+      "twitter": "Twitter",
+      "youtube": "YouTube",
+      "email": "邮箱"
+    },
+    "company": {
+      "title": "公司",
+      "about": "关于我们",
+      "privacy": "隐私政策",
+      "terms": "服务条款",
+      "sitemap": "网站地图"
+    }
+  }
+} 

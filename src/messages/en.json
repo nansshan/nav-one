@@ -1,0 +1,62 @@
+{
+  "common": {
+    "welcome": "Welcome",
+    "home": "Home",
+    "about": "About",
+    "contact": "Contact",
+    "language": "Language"
+  },
+  "home": {
+    "title": "Welcome to our website",
+    "description": "This is a multilingual website built with Next.js and next-intl"
+  },
+  "error": {
+    "notFound": "Page not found",
+    "backHome": "Back to home"
+  },
+  "nav": {
+    "search": "Search",
+    "category": "Category",
+    "tag": "Tag",
+    "blog": "Blog",
+    "pricing": "Pricing",
+    "submit": "Submit",
+    "signIn": "Sign In",
+    "language": {
+      "english": "English",
+      "chinese": "Chinese"
+    }
+  },
+  "footer": {
+    "description": "This is a demo site for Mkdirs, the ultimate directory website template",
+    "builtWith": "Built with",
+    "product": {
+      "title": "PRODUCT",
+      "landing": "Landing",
+      "search": "Search",
+      "category": "Category",
+      "tag": "Tag"
+    },
+    "resources": {
+      "title": "RESOURCES",
+      "pricing": "Pricing",
+      "submit": "Submit",
+      "blog": "Blog",
+      "changelog": "Changelog"
+    },
+    "support": {
+      "title": "SUPPORT",
+      "github": "GitHub",
+      "twitter": "Twitter",
+      "youtube": "YouTube",
+      "email": "Email"
+    },
+    "company": {
+      "title": "COMPANY",
+      "about": "About Us",
+      "privacy": "Privacy Policy",
+      "terms": "Terms of Service",
+      "sitemap": "Sitemap"
+    }
+  }
+} 
