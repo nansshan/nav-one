@@ -1,0 +1,1 @@
+export const getCategoriesQuery = `*[_type == "category"] | order(order asc)`

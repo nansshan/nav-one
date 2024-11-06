@@ -58,5 +58,55 @@
       "terms": "服务条款",
       "sitemap": "网站地图"
     }
+  },
+  "submit": {
+    "title": "提交",
+    "steps": {
+      "details": "详情",
+      "payment": "支付",
+      "publish": "发布"
+    },
+    "form": {
+      "link": {
+        "label": "网站链接",
+        "placeholder": "请输入您的网站链接"
+      },
+      "name": {
+        "label": "网站名称",
+        "placeholder": "请输入您的网站名称"
+      },
+      "categories": {
+        "label": "网站分类",
+        "placeholder": "请选择分类"
+      },
+      "description": {
+        "label": "简短描述",
+        "placeholder": "请输入网站简短描述"
+      },
+      "introduction": {
+        "label": "详细介绍",
+        "placeholder": "请输入网站详细介绍",
+        "markdownSupported": "支持 Markdown 格式"
+      },
+      "image": {
+        "label": "网站截图",
+        "sizeLimit": "PNG 或 JPEG，最大 1MB",
+        "dropzoneText": "拖拽或点击上传图片"
+      }
+    },
+    "editor": {
+      "bold": "粗体",
+      "italic": "斜体",
+      "underline": "下划线",
+      "code": "代码",
+      "quote": "引用",
+      "bulletList": "无序列表",
+      "numberList": "有序列表",
+      "link": "链接",
+      "preview": "预览",
+      "help": "帮助"
+    },
+    "submit": "提交",
+    "helpText": "需要帮助？"
   }
 } 

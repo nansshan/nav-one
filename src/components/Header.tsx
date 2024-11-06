@@ -49,7 +49,7 @@ export function Header() {
                 <Link href="#" className="text-muted-foreground hover:text-foreground transition-colors">
                   {t('pricing')}
                 </Link>
-                <Link href="#" className="text-muted-foreground hover:text-foreground transition-colors">
+                <Link href="/submit" className="text-muted-foreground hover:text-foreground transition-colors">
                   {t('submit')}
                 </Link>
               </div>
