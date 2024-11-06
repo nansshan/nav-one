@@ -49,10 +49,7 @@ export default {
     {
       name: 'image_url',
       title: '网站主页图片',
-      type: 'image',
-      options: {
-        hotspot: true,
-      },
+      type: 'text',
       validation: (Rule: any) => Rule.required(),
     },
     {
@@ -62,9 +59,10 @@ export default {
       initialValue: 1,
       options: {
         list: [
-          {title: '待审核', value: 1},
-          {title: '通过', value: 2},
-          {title: '拒绝', value: 3}
+          {title: '待提交', value: 1},
+          {title: '待审核', value: 2},
+          {title: '已通过', value: 3},
+          {title: '已拒绝', value: 4}
         ]
       }
     },

@@ -14,7 +14,7 @@ import { ImageUpload } from "@/components/ui/image-upload";
 import { Bold, Italic, Underline, Code, Quote, List, ListOrdered, Link as LinkIcon, Eye, HelpCircle } from "lucide-react";
 import { cn } from '@/lib/utils';
 import EasyMDE from 'easymde';
-import { getCategories } from "@/lib/sanity/client";
+import { getCategories, createSubmission } from "@/lib/sanity/client";
 
 interface Category {
     title: string;
@@ -72,6 +72,16 @@ const markdownEditorStyles = `
   }
 `;
 
+// 添加类型定义
+interface FormData {
+  web_link: string;
+  name: string;
+  categories: string;
+  description: string;
+  introduction: string;
+  image_url: string;
+}
+
 export default function SubmitPage() {
   const t = useTranslations('submit');
   const router = useRouter();
@@ -81,14 +91,18 @@ export default function SubmitPage() {
   const [categories, setCategories] = useState<Category[]>([]);
 
   
-  const [formData, setFormData] = useState({
-    link: '',
+  const [formData, setFormData] = useState<FormData>({
+    web_link: '',
     name: '',
-    category: '',
+    categories: '',
     description: '',
     introduction: '',
-    image: ''
+    image_url: ''
   });
+
+  // 添加提交状态
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     async function fetchCategories() {
@@ -147,8 +161,45 @@ export default function SubmitPage() {
     };
   }, []);
 
-  const handleSubmit = () => {
-    router.push('/submit/payment');
+  const handleSubmit = async () => {
+    try {
+      setIsSubmitting(true);
+      setError(null);
+
+      // 验证表单数据
+      if (!formData.web_link || !formData.name || !formData.categories || !formData.description || !formData.introduction || !formData.image_url) {
+        throw new Error('请填写所有必填字段');
+      }
+
+      // 准备存储数据
+      const submissionData = {
+        web_link: formData.web_link,
+        name: formData.name,
+        categories: formData.categories,
+        description: formData.description,
+        introduction: formData.introduction,
+        image_url: formData.image_url,
+        created_at: new Date().toISOString()
+      };
+
+      // 存储到 localStorage
+      localStorage.setItem('submissionData', JSON.stringify(submissionData));
+
+      // 跳转到支付页面
+      router.push('/submit/payment');
+    } catch (err) {
+      setError(err instanceof Error ? err.message : '提交失败，请重试');
+      console.error('提交错误:', err);
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  const handleImageChange = (url: string) => {
+    setFormData(prev => ({
+      ...prev,
+      image_url: url
+    }));
   };
 
   return (
@@ -193,12 +244,12 @@ export default function SubmitPage() {
           <CardContent className="p-6 space-y-6">
             <div className="grid md:grid-cols-2 gap-6">
               <div className="space-y-2">
-                <Label htmlFor="link">{t('form.link.label')}</Label>
+                <Label htmlFor="web_link">{t('form.web_link.label')}</Label>
                 <Input 
-                  id="link" 
-                  placeholder={t('form.link.placeholder')}
-                  value={formData.link}
-                  onChange={(e) => setFormData({...formData, link: e.target.value})}
+                  id="web_link" 
+                  placeholder={t('form.web_link.placeholder')}
+                  value={formData.web_link}
+                  onChange={(e) => setFormData({...formData, web_link: e.target.value})}
                 />
               </div>
               <div className="space-y-2">
@@ -215,8 +266,8 @@ export default function SubmitPage() {
             <div className="space-y-2">
               <Label>{t('form.categories.label')}</Label>
               <Select
-                value={formData.category}
-                onValueChange={(value) => setFormData({...formData, category: value})}
+                value={formData.categories}
+                onValueChange={(value) => setFormData({...formData, categories: value})}
               >
                 <SelectTrigger>
                   <SelectValue placeholder={t('form.categories.placeholder')} />
@@ -255,24 +306,30 @@ export default function SubmitPage() {
               </div>
               <div className="space-y-2">
                 <div className="flex items-center justify-between">
-                  <Label>{t('form.image.label')}</Label>
+                  <Label>{t('form.image_url.label')}</Label>
                   <span className="text-sm text-muted-foreground">
-                    {t('form.image.sizeLimit')}
+                    {t('form.image_url.sizeLimit')}
                   </span>
                 </div>
                 <ImageUpload
-                  value={formData.image}
-                  onChange={(value) => setFormData({...formData, image: value})}
-                  description={t('form.image.dropzoneText')}
-                  className="h-[348px] rounded-lg"
+                  value={formData.image_url}
+                  onChange={handleImageChange}
+                  description="点击或拖拽图片上传"
+                  className="w-full"
                 />
               </div>
             </div>
 
             <div className="bg-muted/50 -mx-6 -mb-6 mt-6 p-6 flex items-center justify-between">
-              <Button onClick={handleSubmit}>
-                {t('submit')}
+              <Button 
+                onClick={handleSubmit} 
+                disabled={isSubmitting}
+              >
+                {isSubmitting ? '提交中...' : t('submit')}
               </Button>
+              {error && (
+                <span className="text-sm text-destructive">{error}</span>
+              )}
               <span className="text-sm text-muted-foreground flex items-center gap-2">
                 <HelpCircle className="h-4 w-4" />
                 {t('helpText')}

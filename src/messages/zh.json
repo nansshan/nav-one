@@ -67,7 +67,7 @@
       "publish": "发布"
     },
     "form": {
-      "link": {
+      "web_link": {
         "label": "网站链接",
         "placeholder": "请输入您的网站链接"
       },
@@ -88,7 +88,7 @@
         "placeholder": "请输入网站详细介绍",
         "markdownSupported": "支持 Markdown 格式"
       },
-      "image": {
+      "image_url": {
         "label": "网站截图",
         "sizeLimit": "PNG 或 JPEG，最大 1MB",
         "dropzoneText": "拖拽或点击上传图片"
