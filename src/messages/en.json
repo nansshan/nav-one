@@ -8,7 +8,52 @@
   },
   "home": {
     "title": "Welcome to our website",
-    "description": "This is a multilingual website built with Next.js and next-intl"
+    "description": "This is a multilingual website built with Next.js and next-intl",
+    "hero": {
+      "title": {
+        "prefix": "The Ultimate",
+        "highlight": "Directory Website Template"
+      },
+      "description": "This is a demo directory website built with Mkdirs..."
+    },
+    "search": {
+      "placeholder": "Search any products you need",
+      "button": "Search"
+    },
+    "filters": {
+      "categories": {
+        "placeholder": "All Categories",
+        "searchPlaceholder": "Search categories...",
+        "noResults": "No categories found",
+        "all": "All Categories"
+      },
+      "sort": {
+        "placeholder": "Sort by Time (desc)",
+        "desc": "Sort by Time (desc)",
+        "asc": "Sort by Time (asc)"
+      },
+      "reset": "Reset"
+    },
+    "website": {
+      "visitButton": "Visit Website",
+      "loading": "Loading..."
+    },
+    "newsletter": {
+      "badge": "NEWSLETTER",
+      "title": "Join the Community",
+      "description": "Subscribe to our newsletter for the latest news and updates",
+      "placeholder": "Enter your email"
+    },
+    "pagination": {
+      "previous": "Previous",
+      "next": "Next",
+      "previousText": "Previous page",
+      "nextText": "Next page",
+      "page": "Page {number}",
+      "goToPage": "Go to page {number}",
+      "currentPage": "Current page, page {number}",
+      "ellipsis": "More pages"
+    }
   },
   "error": {
     "notFound": "Page not found",

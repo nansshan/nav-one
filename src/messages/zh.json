@@ -8,7 +8,52 @@
   },
   "home": {
     "title": "欢迎访问我们的网站",
-    "description": "这是一个使用 Next.js 和 next-intl 构建的多语言网站"
+    "description": "这是一个使用 Next.js 和 next-intl 构建的多语言网站",
+    "hero": {
+      "title": {
+        "prefix": "终极",
+        "highlight": "目录网站模板"
+      },
+      "description": "这是一个使用 Mkdirs 构建的演示目录网站..."
+    },
+    "search": {
+      "placeholder": "搜索你需要的任何产品",
+      "button": "搜索"
+    },
+    "filters": {
+      "categories": {
+        "placeholder": "所有分类",
+        "searchPlaceholder": "搜索分类...",
+        "noResults": "未找到类",
+        "all": "所有分类"
+      },
+      "sort": {
+        "placeholder": "按时间排序（降序）",
+        "desc": "按时间排序（降序）",
+        "asc": "按时间排序（升序）"
+      },
+      "reset": "重置"
+    },
+    "website": {
+      "visitButton": "访问网站",
+      "loading": "加载中..."
+    },
+    "newsletter": {
+      "badge": "新闻订阅",
+      "title": "加入社区",
+      "description": "订阅我们的新闻通讯以获取最新消息和更新",
+      "placeholder": "输入你的邮箱"
+    },
+    "pagination": {
+      "previous": "上一页",
+      "next": "下一页",
+      "previousText": "上一页",
+      "nextText": "下一页",
+      "page": "第 {number} 页",
+      "goToPage": "跳转到第 {number} 页",
+      "currentPage": "当前页，第 {number} 页",
+      "ellipsis": "更多页面"
+    }
   },
   "error": {
     "notFound": "页面未找到",
@@ -85,7 +130,7 @@
       },
       "introduction": {
         "label": "详细介绍",
-        "placeholder": "请输入网站详细介绍",
+        "placeholder": "请输入站详细介绍",
         "markdownSupported": "支持 Markdown 格式"
       },
       "image_url": {
