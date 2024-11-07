@@ -72,6 +72,18 @@
       "chinese": "Chinese"
     }
   },
+  "loginModal": {
+    "welcomeBack": "Welcome Back",
+    "email": "Email",
+    "password": "Password",
+    "forgotPassword": "Forgot Password?",
+    "login": "Login",
+    "orContinueWith": "Or continue with",
+    "loginWithGoogle": "Login with Google",
+    "loginWithGitHub": "Login with GitHub",
+    "noAccount": "Don't have an account?",
+    "signUp": "Sign Up"
+  },
   "footer": {
     "description": "This is a demo site for Mkdirs, the ultimate directory website template",
     "builtWith": "Built with",

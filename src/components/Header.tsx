@@ -12,15 +12,24 @@ import {
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/components/ui/select"
+} from "@/components/ui/select"// 确保路径正确
+
+import { useState } from 'react';
+import LoginModal from './LoginModal'; // 确保路径正确
 
 export function Header() {
   const t = useTranslations('nav');
   const locale = useLocale();
   const router = useRouter();
 
+  const [isLoginModalOpen, setLoginModalOpen] = useState(false);
+
   const handleLanguageChange = (value: string) => {
     router.push(`/${value}`);
+  };
+
+  const handleLoginClick = () => {
+    setLoginModalOpen(true);
   };
 
   return (
@@ -64,10 +73,11 @@ export function Header() {
                   <SelectItem value="zh">中文</SelectItem>
                 </SelectContent>
               </Select>
-              <Button variant="outline">
+              <Button variant="outline" onClick={handleLoginClick}>
                 {t('signIn')}
                 <span className="ml-2">→</span>
               </Button>
+              <LoginModal isOpen={isLoginModalOpen} onClose={() => setLoginModalOpen(false)} />
               <ThemeToggle />
             </div>
           </div>

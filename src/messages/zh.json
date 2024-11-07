@@ -153,5 +153,17 @@
     },
     "submit": "提交",
     "helpText": "需要帮助？"
+  },
+  "loginModal": {
+    "welcomeBack": "欢迎回来",
+    "email": "邮箱",
+    "password": "密码",
+    "forgotPassword": "忘记密码？",
+    "login": "登录",
+    "orContinueWith": "或继续使用",
+    "loginWithGoogle": "使用 Google 登录",
+    "loginWithGitHub": "使用 GitHub 登录",
+    "noAccount": "还没有账户？",
+    "signUp": "注册"
   }
 } 
