@@ -80,3 +80,33 @@
     text-wrap: balance;
   }
 }
+
+/* 确保滚动条始终显示，并固定页面宽度 */
+html {
+  overflow-y: scroll;
+  width: 100vw;
+  overflow-x: hidden;
+}
+
+body {
+  width: 100%;
+  overflow-x: hidden;
+}
+
+/* 美化滚动条样式（可选） */
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: #1a1a1a;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #333;
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #444;
+}

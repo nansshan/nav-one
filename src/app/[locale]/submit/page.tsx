@@ -19,6 +19,7 @@ import { getCategories, createSubmission } from "@/lib/sanity/client";
 interface Category {
     title: string;
     value: string;
+    _id: string;
   }
   
 
@@ -77,9 +78,11 @@ interface FormData {
   web_link: string;
   name: string;
   categories: string;
+  categoriesName: string;
   description: string;
   introduction: string;
   image_url: string;
+  imageAssetId: string;
 }
 
 export default function SubmitPage() {
@@ -95,9 +98,11 @@ export default function SubmitPage() {
     web_link: '',
     name: '',
     categories: '',
+    categoriesName: '',
     description: '',
     introduction: '',
-    image_url: ''
+    image_url: '',
+    imageAssetId: ''
   });
 
   // 添加提交状态
@@ -175,10 +180,21 @@ export default function SubmitPage() {
       const submissionData = {
         web_link: formData.web_link,
         name: formData.name,
-        categories: formData.categories,
+        categories: {
+          _type: 'reference',
+          _ref: formData.categories  // 这里是 category 的 _id
+        },
+        categoriesName: formData.categoriesName,
         description: formData.description,
         introduction: formData.introduction,
-        image_url: formData.image_url,
+        url: formData.image_url,
+        image_url: {
+          _type: 'image',
+          asset: {
+            _type: 'reference',
+            _ref: formData.imageAssetId
+          }
+        },
         created_at: new Date().toISOString()
       };
 
@@ -195,10 +211,11 @@ export default function SubmitPage() {
     }
   };
 
-  const handleImageChange = (url: string) => {
+  const handleImageChange = (url: string, assetId: string) => {
     setFormData(prev => ({
       ...prev,
-      image_url: url
+      image_url: url,
+      imageAssetId: assetId
     }));
   };
 
@@ -267,14 +284,24 @@ export default function SubmitPage() {
               <Label>{t('form.categories.label')}</Label>
               <Select
                 value={formData.categories}
-                onValueChange={(value) => setFormData({...formData, categories: value})}
+                onValueChange={(value) => {
+                  // 找到选中的 category 对象
+                  const selectedCategory = categories.find(cat => cat._id === value);
+                  
+                  // 同时更新 categories 和 categoriesName
+                  setFormData({
+                    ...formData, 
+                    categories: value,
+                    categoriesName: selectedCategory ? selectedCategory.title : ''
+                  });
+                }}
               >
                 <SelectTrigger>
                   <SelectValue placeholder={t('form.categories.placeholder')} />
                 </SelectTrigger>
                 <SelectContent>
                 {categories.map((category) => (
-                    <SelectItem key={category.value} value={category.value}>
+                    <SelectItem key={category.value} value={category._id}>
                         {category.title}
                     </SelectItem>
                     ))}
@@ -313,6 +340,7 @@ export default function SubmitPage() {
                 </div>
                 <ImageUpload
                   value={formData.image_url}
+                  assetId={formData.imageAssetId}
                   onChange={handleImageChange}
                   description="点击或拖拽图片上传"
                   className="w-full"

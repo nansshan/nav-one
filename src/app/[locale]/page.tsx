@@ -1,4 +1,11 @@
-import { useTranslations } from 'next-intl';
+'use client';
+
+import { useState, useEffect } from 'react';
+import { getWebsites } from '@/lib/sanity/client';
+import type { Website, WebsiteFilters } from '@/lib/sanity/client';
+import { getCategories } from "@/lib/sanity/client";
+import { Input } from "@/components/ui/input";
+import { ScrollArea } from "@/components/ui/scroll-area";
 
 import { Search } from "lucide-react"
 import Link from "next/link"
@@ -12,7 +19,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select"
-import { Input } from "@/components/ui/input"
 import {
   Pagination,
   PaginationContent,
@@ -23,7 +29,157 @@ import {
   PaginationPrevious,
 } from "@/components/ui/pagination"
 
+interface Category {
+  title: string;
+  value: string;
+  _id: string;
+}
+
 export default function Home() {
+  const [websites, setWebsites] = useState<Website[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [searchTerm, setSearchTerm] = useState(''); // 添加搜索词状态
+  const [filters, setFilters] = useState<WebsiteFilters>({
+    page: 1,
+    pageSize: 12, // 每页12条,对应4行3列
+    orderBy: 'publish_time desc'
+  });
+  const [total, setTotal] = useState(0);
+  const [categories, setCategories] = useState<Category[]>([]);
+
+  // 添加排序状态
+  const [sortOrder, setSortOrder] = useState<'desc' | 'asc'>('desc');
+
+  const [categorySearch, setCategorySearch] = useState('');
+
+  const [totalPages, setTotalPages] = useState(1);
+  const [currentPage, setCurrentPage] = useState(1);
+
+  useEffect(() => {
+    async function fetchCategories() {
+      try {
+        console.log('Fetching categories...');
+        const data = await getCategories();
+        console.log('Categories data:', data);
+        
+        if (Array.isArray(data) && data.length > 0) {
+          setCategories(data);
+          console.log('Categories set successfully');
+        } else {
+          console.log('No categories returned from API');
+        }
+      } catch (error) {
+        console.error('Failed to fetch categories:', error);
+      }
+    }
+
+    fetchCategories();
+  }, []);
+
+  useEffect(() => {
+    fetchWebsites();
+  }, [filters]);
+
+  const fetchWebsites = async () => {
+    try {
+      setLoading(true);
+      const response = await getWebsites(filters);
+      setWebsites(response.websites);
+      setTotal(response.total);
+      setTotalPages(response.totalPages);
+      setCurrentPage(response.page);
+    } catch (error) {
+      console.error('Failed to fetch websites:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // 处理搜索输入变化
+  const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setSearchTerm(e.target.value);
+  };
+
+  // 处理搜索按钮点击
+  const handleSearch = () => {
+    setFilters(prev => ({
+      ...prev,
+      name: searchTerm,
+      page: 1
+    }));
+  };
+
+  // 处理回车键搜索
+  const handleKeyPress = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === 'Enter') {
+      handleSearch();
+    }
+  };
+
+  // 处理分类选择
+  const handleCategoryChange = (value: string) => {
+    setFilters(prev => ({
+      ...prev,
+      categoryId: value === 'all' ? undefined : value,
+      page: 1
+    }));
+  };
+
+  // 处理排序选择
+  const handleSortChange = (value: string) => {
+    const orderBy = value === 'asc' ? 'publish_time asc' : 'publish_time desc';
+    setSortOrder(value as 'desc' | 'asc');
+    setFilters(prev => ({
+      ...prev,
+      orderBy,
+      page: 1
+    }));
+  };
+
+  // 处理重置
+  const handleReset = () => {
+    setSearchTerm('');
+    setSortOrder('desc');
+    setFilters({
+      page: 1,
+      pageSize: 12,
+      orderBy: 'publish_time desc'
+    });
+  };
+
+  // 处理分类搜索
+  const filteredCategories = categories.filter(category =>
+    category.title.toLowerCase().includes(categorySearch.toLowerCase())
+  );
+
+  // 处理页码变化
+  const handlePageChange = (page: number) => {
+    setFilters(prev => ({
+      ...prev,
+      page
+    }));
+  };
+
+  // 生成页码数组
+  const getPageNumbers = () => {
+    const pages = [];
+    const maxVisiblePages = 3; // 最多显示的页码数
+    
+    let start = Math.max(1, currentPage - 1);
+    let end = Math.min(totalPages, start + maxVisiblePages - 1);
+    
+    // 调整起始页码，确保始终显示 maxVisiblePages 个页码
+    if (end - start + 1 < maxVisiblePages) {
+      start = Math.max(1, end - maxVisiblePages + 1);
+    }
+
+    for (let i = start; i <= end; i++) {
+      pages.push(i);
+    }
+
+    return pages;
+  };
+
   return (
     <div className="min-h-screen bg-black text-white">
       {/* Navigation */}
@@ -53,10 +209,14 @@ export default function Home() {
           <Input
             placeholder="Search any products you need"
             className="w-full bg-gray-900 border-gray-800 pl-4 pr-10 py-6"
+            value={searchTerm}
+            onChange={handleSearchChange}
+            onKeyPress={handleKeyPress}
           />
           <Button 
             size="icon"
             className="absolute right-2 top-1/2 -translate-y-1/2"
+            onClick={handleSearch}
           >
             <Search className="h-4 w-4" />
           </Button>
@@ -65,375 +225,138 @@ export default function Home() {
 
       {/* Filters */}
       <div className="container mx-auto px-4 mb-8">
-        <div className="flex flex-wrap gap-4 justify-between items-center">
-          <Select>
+        <div className="flex flex-wrap gap-8 justify-center items-center max-w-3xl mx-auto">
+          <Select
+            value={filters.categoryId || 'all'}
+            onValueChange={handleCategoryChange}
+          >
             <SelectTrigger className="w-[200px] bg-gray-900 border-gray-800">
               <SelectValue placeholder="All Categories" />
             </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">All Categories</SelectItem>
-              <SelectItem value="entertainment">Entertainment</SelectItem>
-              <SelectItem value="sports">Sports</SelectItem>
-              <SelectItem value="education">Education</SelectItem>
+            <SelectContent 
+              className="fixed" 
+              position="popper"
+            >
+              <div className="sticky top-0 p-2 bg-popover">
+                <Input
+                  placeholder="Search categories..."
+                  value={categorySearch}
+                  onChange={(e) => setCategorySearch(e.target.value)}
+                  className="h-8"
+                />
+              </div>
+              <ScrollArea className="h-[200px] py-2">
+                <SelectItem value="all">All Categories</SelectItem>
+                {filteredCategories.map((category) => (
+                  <SelectItem key={category._id} value={category._id}>
+                    {category.title}
+                  </SelectItem>
+                ))}
+                {filteredCategories.length === 0 && (
+                  <div className="text-center py-2 text-muted-foreground">
+                    No categories found
+                  </div>
+                )}
+              </ScrollArea>
             </SelectContent>
           </Select>
 
-          <Select>
+          <Select
+            value={sortOrder}
+            onValueChange={handleSortChange}
+          >
             <SelectTrigger className="w-[200px] bg-gray-900 border-gray-800">
-              <SelectValue placeholder="All Tags" />
+              <SelectValue placeholder="Sort by Time (desc)" />
             </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">All Tags</SelectItem>
-              <SelectItem value="android">#android</SelectItem>
-              <SelectItem value="linux">#linux</SelectItem>
-              <SelectItem value="google">#google</SelectItem>
-            </SelectContent>
-          </Select>
-
-          <Select>
-            <SelectTrigger className="w-[200px] bg-gray-900 border-gray-800">
-              <SelectValue placeholder="No Filter" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="none">No Filter</SelectItem>
-              <SelectItem value="popular">Popular</SelectItem>
-              <SelectItem value="recent">Recent</SelectItem>
-            </SelectContent>
-          </Select>
-
-          <Select>
-            <SelectTrigger className="w-[200px] bg-gray-900 border-gray-800">
-              <SelectValue placeholder="Sort by Time (dsc)" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="dsc">Sort by Time (dsc)</SelectItem>
+            <SelectContent className="fixed">
+              <SelectItem value="desc">Sort by Time (desc)</SelectItem>
               <SelectItem value="asc">Sort by Time (asc)</SelectItem>
             </SelectContent>
           </Select>
 
-          <Button variant="outline" className="border-gray-800">
+          <Button 
+            variant="outline" 
+            className="w-[200px] border-gray-800"
+            onClick={handleReset}
+          >
             Reset
           </Button>
         </div>
       </div>
 
-      {/* Grid */}
-      <div className="container mx-auto px-4 pb-16">
-        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {/* Card 1 */}
-          <div className="bg-gray-900 rounded-lg overflow-hidden">
-            <Image
-              src="/placeholder.svg?height=200&width=400"
-              alt="Sparklers"
-              width={400}
-              height={200}
-              className="w-full h-48 object-cover"
-            />
-            <div className="p-6">
-              <div className="flex gap-2 mb-4">
-                <span className="px-2 py-1 bg-gray-800 rounded text-sm">Entertainment</span>
-                <span className="px-2 py-1 bg-gray-800 rounded text-sm">Sports</span>
+      {/* 网站卡片列表 */}
+      <div className="container mx-auto px-4 py-8">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {loading ? (
+            // 加载状态显示骨架屏
+            Array(12).fill(null).map((_, index) => (
+              <div key={index} className="bg-gray-900 rounded-lg overflow-hidden animate-pulse">
+                <div className="w-full h-48 bg-gray-800" />
+                <div className="p-6">
+                  <div className="h-4 bg-gray-800 rounded w-1/4 mb-4" />
+                  <div className="h-6 bg-gray-800 rounded w-3/4 mb-2" />
+                  <div className="h-4 bg-gray-800 rounded w-full mb-4" />
+                  <div className="h-4 bg-gray-800 rounded w-1/2" />
+                </div>
               </div>
-              <h3 className="text-xl font-semibold mb-2">item14</h3>
-              <p className="text-gray-400 mb-4">
-                Renders an accessible label associated with controls. If the item is featured, it will be displayed in the...
-              </p>
-              <div className="flex gap-2">
-                <span className="text-gray-500 text-sm">#android</span>
-                <span className="text-gray-500 text-sm">#linux</span>
+            ))
+          ) : (
+            websites.map((website) => (
+              <div key={website._id} className="bg-white rounded-lg overflow-hidden shadow-lg hover:shadow-xl transition-shadow duration-300 dark:bg-gray-900">
+                <div className="relative">
+                  <Image
+                    src={website.imageUrl || "/placeholder.svg?height=200&width=400"}
+                    alt={website.name}
+                    width={400}
+                    height={200}
+                    className="w-full h-48 object-cover"
+                  />
+                  {/* 添加 Visit Website 按钮覆盖在图片上 */}
+                  <div className="absolute inset-0 flex items-center justify-center opacity-0 hover:opacity-100 transition-opacity duration-300 bg-black/50">
+                    <Link 
+                      href={website.web_link} 
+                      target="_blank"
+                      className="px-4 py-2 bg-white/90 text-black rounded-md hover:bg-white transition-colors"
+                    >
+                      Visit Website
+                    </Link>
+                  </div>
+                  {/* 分类标签放在图片底部 */}
+                  <div className="absolute bottom-2 left-2 flex gap-2">
+                    {website.category && (
+                      <span className="px-2 py-1 text-xs font-medium bg-black/50 text-white backdrop-blur-sm rounded">
+                        {website.category.title}
+                      </span>
+                    )}
+                  </div>
+                </div>
+                
+                <div className="p-4">
+                  {/* 标题和描述 */}
+                  <div className="mb-4">
+                    <h3 className="text-lg font-semibold mb-2 text-gray-900 dark:text-white">
+                      {website.name}
+                    </h3>
+                    <p className="text-sm text-gray-600 dark:text-gray-400 line-clamp-2">
+                      {website.description}
+                    </p>
+                  </div>
+                  
+                  {/* 标签 */}
+                  <div className="flex flex-wrap gap-2">
+                    {website.tags && website.tags.map((tag: string) => (
+                      <span 
+                        key={tag} 
+                        className="text-xs text-gray-500 dark:text-gray-400"
+                      >
+                        #{tag}
+                      </span>
+                    ))}
+                  </div>
+                </div>
               </div>
-            </div>
-          </div>
-
-          {/* Card 2 */}
-          <div className="bg-gray-900 rounded-lg overflow-hidden">
-            <Image
-              src="/placeholder.svg?height=200&width=400"
-              alt="Mountain landscape"
-              width={400}
-              height={200}
-              className="w-full h-48 object-cover"
-            />
-            <div className="p-6">
-              <div className="flex gap-2 mb-4">
-                <span className="px-2 py-1 bg-gray-800 rounded text-sm">Sports</span>
-                <span className="px-2 py-1 bg-gray-800 rounded text-sm">Education</span>
-                <span className="px-2 py-1 bg-gray-800 rounded text-sm">Lifestyle</span>
-              </div>
-              <h3 className="text-xl font-semibold mb-2 flex items-center gap-2">
-                <span className="text-purple-500">☘</span>
-                item18
-              </h3>
-              <p className="text-gray-400 mb-4">
-                Performant, flexible and extensible forms with easy-to-use validation.
-              </p>
-              <div className="flex gap-2">
-                <span className="text-gray-500 text-sm">#google</span>
-                <span className="text-gray-500 text-sm">#linux</span>
-              </div>
-            </div>
-          </div>
-
-          {/* Card 3 */}
-          <div className="bg-gray-900 rounded-lg overflow-hidden">
-            <Image
-              src="/placeholder.svg?height=200&width=400"
-              alt="Orange trees"
-              width={400}
-              height={200}
-              className="w-full h-48 object-cover"
-            />
-            <div className="p-6">
-              <div className="flex gap-2 mb-4">
-                <span className="px-2 py-1 bg-gray-800 rounded text-sm">Business</span>
-                <span className="px-2 py-1 bg-gray-800 rounded text-sm">Sports</span>
-                <span className="px-2 py-1 bg-gray-800 rounded text-sm">Finance</span>
-              </div>
-              <h3 className="text-xl font-semibold mb-2">item6</h3>
-              <p className="text-gray-400 mb-4">
-                Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nullam efficitur consequat nunc.
-              </p>
-              <div className="flex gap-2">
-                <span className="text-gray-500 text-sm">#google</span>
-                <span className="text-gray-500 text-sm">#linux</span>
-              </div>
-            </div>
-          </div>
-
-          {/* Card 4 */}
-          <div className="bg-gray-900 rounded-lg overflow-hidden">
-            <Image
-              src="/placeholder.svg?height=200&width=400"
-              alt="City skyline"
-              width={400}
-              height={200}
-              className="w-full h-48 object-cover"
-            />
-            <div className="p-6">
-              <div className="flex gap-2 mb-4">
-                <span className="px-2 py-1 bg-gray-800 rounded text-sm">Technology</span>
-                <span className="px-2 py-1 bg-gray-800 rounded text-sm">Business</span>
-              </div>
-              <h3 className="text-xl font-semibold mb-2">item23</h3>
-              <p className="text-gray-400 mb-4">
-                Innovative solutions for modern urban challenges. Explore smart city technologies.
-              </p>
-              <div className="flex gap-2">
-                <span className="text-gray-500 text-sm">#smartcity</span>
-                <span className="text-gray-500 text-sm">#innovation</span>
-              </div>
-            </div>
-          </div>
-
-          {/* Card 5 */}
-          <div className="bg-gray-900 rounded-lg overflow-hidden">
-            <Image
-              src="/placeholder.svg?height=200&width=400"
-              alt="Healthy food"
-              width={400}
-              height={200}
-              className="w-full h-48 object-cover"
-            />
-            <div className="p-6">
-              <div className="flex gap-2 mb-4">
-                <span className="px-2 py-1 bg-gray-800 rounded text-sm">Health</span>
-                <span className="px-2 py-1 bg-gray-800 rounded text-sm">Lifestyle</span>
-              </div>
-              <h3 className="text-xl font-semibold mb-2 flex items-center gap-2">
-                <span className="text-green-500">🥗</span>
-                item9
-              </h3>
-              <p className="text-gray-400 mb-4">
-                Discover delicious and nutritious recipes for a healthier you. Easy-to-follow meal plans.
-              </p>
-              <div className="flex gap-2">
-                <span className="text-gray-500 text-sm">#healthyfood</span>
-                <span className="text-gray-500 text-sm">#nutrition</span>
-              </div>
-            </div>
-          </div>
-
-          {/* Card 6 */}
-          <div className="bg-gray-900 rounded-lg overflow-hidden">
-            <Image
-              src="/placeholder.svg?height=200&width=400"
-              alt="Coding setup"
-              width={400}
-              height={200}
-              className="w-full h-48 object-cover"
-            />
-            <div className="p-6">
-              <div className="flex gap-2 mb-4">
-                <span className="px-2 py-1 bg-gray-800 rounded text-sm">Technology</span>
-                <span className="px-2 py-1 bg-gray-800 rounded text-sm">Education</span>
-              </div>
-              <h3 className="text-xl font-semibold mb-2">item31</h3>
-              <p className="text-gray-400 mb-4">
-                Master the art of coding with our comprehensive tutorials and resources.
-              </p>
-              <div className="flex gap-2">
-                <span className="text-gray-500 text-sm">#coding</span>
-                <span className="text-gray-500 text-sm">#webdev</span>
-              </div>
-            </div>
-          </div>
-
-          {/* Card 7 */}
-          <div className="bg-gray-900 rounded-lg overflow-hidden">
-            <Image
-              src="/placeholder.svg?height=200&width=400"
-              alt="Travel destination"
-              width={400}
-              height={200}
-              className="w-full h-48 object-cover"
-            />
-            <div className="p-6">
-              <div className="flex gap-2 mb-4">
-                <span className="px-2 py-1 bg-gray-800 rounded text-sm">Travel</span>
-                <span className="px-2 py-1 bg-gray-800 rounded text-sm">Lifestyle</span>
-              </div>
-              <h3 className="text-xl font-semibold mb-2">item42</h3>
-              <p className="text-gray-400 mb-4">
-                Explore breathtaking destinations and plan your next adventure with our travel guides.
-              </p>
-              <div className="flex gap-2">
-                <span className="text-gray-500 text-sm">#travel</span>
-                <span className="text-gray-500 text-sm">#adventure</span>
-              </div>
-            </div>
-          </div>
-
-          {/* Card 8 */}
-          <div className="bg-gray-900 rounded-lg overflow-hidden">
-            <Image
-              
-              src="/placeholder.svg?height=200&width=400"
-              alt="Fitness equipment"
-              width={400}
-              height={200}
-              className="w-full h-48 object-cover"
-            />
-            <div className="p-6">
-              <div className="flex gap-2 mb-4">
-                <span className="px-2 py-1 bg-gray-800 rounded text-sm">Fitness</span>
-                <span className="px-2 py-1 bg-gray-800 rounded text-sm">Health</span>
-              </div>
-              <h3 className="text-xl font-semibold mb-2 flex items-center gap-2">
-                <span className="text-blue-500">💪</span>
-                item15
-              </h3>
-              <p className="text-gray-400 mb-4">
-                Achieve your fitness goals with our curated workout plans and expert advice.
-              </p>
-              <div className="flex gap-2">
-                <span className="text-gray-500 text-sm">#fitness</span>
-                <span className="text-gray-500 text-sm">#workout</span>
-              </div>
-            </div>
-          </div>
-
-          {/* Card 9 */}
-          <div className="bg-gray-900 rounded-lg overflow-hidden">
-            <Image
-              src="/placeholder.svg?height=200&width=400"
-              alt="Art supplies"
-              width={400}
-              height={200}
-              className="w-full h-48 object-cover"
-            />
-            <div className="p-6">
-              <div className="flex gap-2 mb-4">
-                <span className="px-2 py-1 bg-gray-800 rounded text-sm">Art</span>
-                <span className="px-2 py-1 bg-gray-800 rounded text-sm">Creativity</span>
-              </div>
-              <h3 className="text-xl font-semibold mb-2">item27</h3>
-              <p className="text-gray-400 mb-4">
-                Unleash your creativity with our art tutorials and inspiration for all skill levels.
-              </p>
-              <div className="flex gap-2">
-                <span className="text-gray-500 text-sm">#art</span>
-                <span className="text-gray-500 text-sm">#creativity</span>
-              </div>
-            </div>
-          </div>
-
-          {/* Card 10 */}
-          <div className="bg-gray-900 rounded-lg overflow-hidden">
-            <Image
-              src="/placeholder.svg?height=200&width=400"
-              alt="Financial charts"
-              width={400}
-              height={200}
-              className="w-full h-48 object-cover"
-            />
-            <div className="p-6">
-              <div className="flex gap-2 mb-4">
-                <span className="px-2 py-1 bg-gray-800 rounded text-sm">Finance</span>
-                <span className="px-2 py-1 bg-gray-800 rounded text-sm">Business</span>
-              </div>
-              <h3 className="text-xl font-semibold mb-2">item38</h3>
-              <p className="text-gray-400 mb-4">
-                Navigate the world of finance with our expert insights and investment strategies.
-              </p>
-              <div className="flex gap-2">
-                <span className="text-gray-500 text-sm">#finance</span>
-                <span className="text-gray-500 text-sm">#investing</span>
-              </div>
-            </div>
-          </div>
-
-          {/* Card 11 */}
-          <div className="bg-gray-900 rounded-lg overflow-hidden">
-            <Image
-              src="/placeholder.svg?height=200&width=400"
-              alt="Music instruments"
-              width={400}
-              height={200}
-              className="w-full h-48 object-cover"
-            />
-            <div className="p-6">
-              <div className="flex gap-2 mb-4">
-                <span className="px-2 py-1 bg-gray-800 rounded text-sm">Music</span>
-                <span className="px-2 py-1 bg-gray-800 rounded text-sm">Entertainment</span>
-              </div>
-              <h3 className="text-xl font-semibold mb-2 flex items-center gap-2">
-                <span className="text-yellow-500">🎵</span>
-                item20
-              </h3>
-              <p className="text-gray-400 mb-4">
-                Explore the world of music with our lessons, reviews, and industry insights.
-              </p>
-              <div className="flex gap-2">
-                <span className="text-gray-500 text-sm">#music</span>
-                <span className="text-gray-500 text-sm">#instruments</span>
-              </div>
-            </div>
-          </div>
-
-          {/* Card 12 */}
-          <div className="bg-gray-900 rounded-lg overflow-hidden">
-            <Image
-              src="/placeholder.svg?height=200&width=400"
-              alt="Gardening tools"
-              width={400}
-              height={200}
-              className="w-full h-48 object-cover"
-            />
-            <div className="p-6">
-              <div className="flex gap-2 mb-4">
-                <span className="px-2 py-1 bg-gray-800 rounded text-sm">Gardening</span>
-                <span className="px-2 py-1 bg-gray-800 rounded text-sm">Lifestyle</span>
-              </div>
-              <h3 className="text-xl font-semibold mb-2">item33</h3>
-              <p className="text-gray-400 mb-4">
-                Cultivate your green thumb with our gardening tips, plant care guides, and landscaping ideas.
-              </p>
-              <div className="flex gap-2">
-                <span className="text-gray-500 text-sm">#gardening</span>
-                <span className="text-gray-500 text-sm">#plants</span>
-              </div>
-            </div>
-          </div>
+            ))
+          )}
         </div>
       </div>
 
@@ -442,22 +365,58 @@ export default function Home() {
         <Pagination>
           <PaginationContent>
             <PaginationItem>
-              <PaginationPrevious href="#" />
+              <PaginationPrevious 
+                className={currentPage === 1 ? 'pointer-events-none opacity-50' : 'cursor-pointer'}
+                onClick={() => currentPage > 1 && handlePageChange(currentPage - 1)}
+              />
             </PaginationItem>
+
+            {currentPage > 2 && (
+              <>
+                <PaginationItem>
+                  <PaginationLink onClick={() => handlePageChange(1)}>
+                    1
+                  </PaginationLink>
+                </PaginationItem>
+                {currentPage > 3 && (
+                  <PaginationItem>
+                    <PaginationEllipsis />
+                  </PaginationItem>
+                )}
+              </>
+            )}
+
+            {getPageNumbers().map((pageNumber) => (
+              <PaginationItem key={pageNumber}>
+                <PaginationLink 
+                  onClick={() => handlePageChange(pageNumber)}
+                  isActive={currentPage === pageNumber}
+                >
+                  {pageNumber}
+                </PaginationLink>
+              </PaginationItem>
+            ))}
+
+            {currentPage < totalPages - 1 && (
+              <>
+                {currentPage < totalPages - 2 && (
+                  <PaginationItem>
+                    <PaginationEllipsis />
+                  </PaginationItem>
+                )}
+                <PaginationItem>
+                  <PaginationLink onClick={() => handlePageChange(totalPages)}>
+                    {totalPages}
+                  </PaginationLink>
+                </PaginationItem>
+              </>
+            )}
+
             <PaginationItem>
-              <PaginationLink href="#" isActive>1</PaginationLink>
-            </PaginationItem>
-            <PaginationItem>
-              <PaginationLink href="#">2</PaginationLink>
-            </PaginationItem>
-            <PaginationItem>
-              <PaginationLink href="#">3</PaginationLink>
-            </PaginationItem>
-            <PaginationItem>
-              <PaginationEllipsis />
-            </PaginationItem>
-            <PaginationItem>
-              <PaginationNext href="#" />
+              <PaginationNext 
+                className={currentPage === totalPages ? 'pointer-events-none opacity-50' : 'cursor-pointer'}
+                onClick={() => currentPage < totalPages && handlePageChange(currentPage + 1)}
+              />
             </PaginationItem>
           </PaginationContent>
         </Pagination>

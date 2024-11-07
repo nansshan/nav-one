@@ -8,17 +8,23 @@ import { Badge } from "@/components/ui/badge"
 import { Check, X } from "lucide-react"
 import Image from "next/image"
 import { useRouter } from 'next/navigation';
-import { createSubmission } from '@/lib/sanity/client';
 import { useToast } from "@/components/ui/use-toast";
-
+import {createSubmission } from "@/lib/sanity/client";
+interface Category {
+  title: string;
+  value: string;
+  _id: string;
+}
 interface SubmissionData {
   web_link: string;
   name: string;
   categories: string;
+  categoriesName: string;
   description: string;
   introduction: string;
   image_url: string;
   created_at: string;
+  url: string;
 }
 
 export default function PaymentPage() {
@@ -28,7 +34,6 @@ export default function PaymentPage() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const { toast } = useToast();
-  
   useEffect(() => {
     // 从 localStorage 读取数据
     const storedData = localStorage.getItem('submissionData');
@@ -131,13 +136,13 @@ export default function PaymentPage() {
         <div className="grid md:grid-cols-[1fr,2fr] gap-6 mb-8">
           <div className="relative aspect-[4/3] rounded-lg overflow-hidden border">
             <Image
-              src={submissionData.image_url}
+              src={submissionData.url}
               alt="Product preview"
               fill
               className="object-cover"
             />
             <div className="absolute bottom-2 left-2 flex gap-2">
-              <Badge variant="secondary">{submissionData.categories}</Badge>
+              <Badge variant="secondary">{submissionData.categoriesName}</Badge>
             </div>
           </div>
           <div className="space-y-4">

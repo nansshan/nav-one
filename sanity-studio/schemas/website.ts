@@ -49,7 +49,10 @@ export default {
     {
       name: 'image_url',
       title: '网站主页图片',
-      type: 'text',
+      type: 'image',
+      options: {
+        hotspot: true // 可选,允许设置图片焦点
+      },
       validation: (Rule: any) => Rule.required(),
     },
     {

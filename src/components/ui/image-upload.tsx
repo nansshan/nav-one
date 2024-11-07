@@ -7,13 +7,15 @@ import Image from 'next/image';
 import { cn } from '@/lib/utils';
 
 interface ImageUploadProps {
+  assetId?: string;
   value?: string;
-  onChange: (value: string) => void;
+  onChange: (value: string, assetId: string) => void;
   className?: string;
   description?: string;
 }
 
 export function ImageUpload({
+  assetId: initialAssetId,
   value,
   onChange,
   className,
@@ -21,6 +23,7 @@ export function ImageUpload({
 }: ImageUploadProps) {
   const [isUploading, setIsUploading] = useState(false);
   const [previewUrl, setPreviewUrl] = useState(value);
+  const [assetId, setAssetId] = useState(initialAssetId);
 
   const onDrop = useCallback(async (acceptedFiles: File[]) => {
     try {
@@ -40,9 +43,10 @@ export function ImageUpload({
 
       const data = await response.json();
       
-      if (data && data.url) {
+      if (data && data.url && data.assetId) {
         setPreviewUrl(data.url);
-        onChange(data.url);
+        setAssetId(data.assetId);
+        onChange(data.url, data.assetId);
       }
     } catch (error) {
       console.error('上传错误:', error);
@@ -64,7 +68,8 @@ export function ImageUpload({
   const removeImage = (e: React.MouseEvent) => {
     e.stopPropagation();
     setPreviewUrl('');
-    onChange('');
+    setAssetId('');
+    onChange('', '');
   };
 
   return (
