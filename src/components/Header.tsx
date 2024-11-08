@@ -2,25 +2,26 @@
 
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
-import { useTranslations } from 'next-intl';
-import { useLocale } from 'next-intl';
+import { useTranslations, useLocale } from 'next-intl';
 import { useRouter } from 'next/navigation';
 import { ThemeToggle } from "@/components/theme-toggle"
+import { useSession } from "next-auth/react"
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/components/ui/select"// 确保路径正确
-
+} from "@/components/ui/select"
 import { useState } from 'react';
-import LoginModal from './LoginModal'; // 确保路径正确
+import LoginModal from './LoginModal';
+import { UserMenu } from './UserMenu';
 
 export function Header() {
   const t = useTranslations('nav');
   const locale = useLocale();
   const router = useRouter();
+  const { data: session, status } = useSession()
 
   const [isLoginModalOpen, setLoginModalOpen] = useState(false);
 
@@ -73,10 +74,18 @@ export function Header() {
                   <SelectItem value="zh">中文</SelectItem>
                 </SelectContent>
               </Select>
-              <Button variant="outline" onClick={handleLoginClick}>
-                {t('signIn')}
-                <span className="ml-2">→</span>
-              </Button>
+              
+              {status === 'loading' ? (
+                <div className="w-8 h-8 rounded-full bg-muted animate-pulse" />
+              ) : session?.user ? (
+                <UserMenu />
+              ) : (
+                <Button variant="outline" onClick={handleLoginClick}>
+                  {t('signIn')}
+                  <span className="ml-2">→</span>
+                </Button>
+              )}
+              
               <LoginModal isOpen={isLoginModalOpen} onClose={() => setLoginModalOpen(false)} />
               <ThemeToggle />
             </div>

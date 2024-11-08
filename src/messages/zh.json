@@ -164,6 +164,49 @@
     "loginWithGoogle": "使用 Google 登录",
     "loginWithGitHub": "使用 GitHub 登录",
     "noAccount": "还没有账户？",
-    "signUp": "注册"
+    "signUp": "注册",
+    "invalidCredentials": "邮箱或密码错误",
+    "loginError": "登录失败，请稍后重试",
+    "loginSuccess": "登录成功",
+    "loggingIn": "登录中...",
+    "emailRequired": "请输入邮箱",
+    "passwordRequired": "请输入密码",
+    "invalidEmail": "请输入有效的邮箱地址",
+    "networkError": "网络错误，请检查网络连接",
+    "serverError": "服务器错误，请稍后重试"
+  },
+  "signup": {
+    "createAccount": "创建账户",
+    "name": "姓名",
+    "enterYourName": "输入你的姓名",
+    "email": "邮箱",
+    "password": "密码",
+    "orContinueWith": "或继续使用",
+    "signupWithGoogle": "使用 Google 登录",
+    "signupWithGitHub": "使用 GitHub 登录",
+    "alreadyHaveAccount": "已经有账户了？",
+    "login": "登录",
+    "nameRequired": "请输入姓名",
+    "emailRequired": "请输入邮箱",
+    "passwordRequired": "请输入密码",
+    "invalidEmail": "请输入有效的邮箱地址",
+    "passwordTooShort": "密码至少需要6个字符",
+    "emailExists": "该邮箱已被注册",
+    "signupError": "注册失败，请稍后重试",
+    "loginError": "登录失败，请稍后重试",
+    "signupSuccess": "注册成功",
+    "signingUp": "注册中..."
+  },
+  "auth": {
+    "errors": {
+      "loginFailed": "登录失败，请稍后重试",
+      "loginError": "登录过程中出现错误"
+    }
+  },
+  "userMenu": {
+    "signOut": "退出登录",
+    "profile": "个人资料",
+    "settings": "设置",
+    "myAccount": "我的账户"
   }
 } 

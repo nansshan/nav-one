@@ -80,9 +80,19 @@
     "login": "Login",
     "orContinueWith": "Or continue with",
     "loginWithGoogle": "Login with Google",
-    "loginWithGitHub": "Login with GitHub",
+     "loginWithGitHub": "Sign in with GitHub",
     "noAccount": "Don't have an account?",
-    "signUp": "Sign Up"
+    "signUp": "Sign Up",
+   "invalidCredentials": "Invalid email or password",
+    "loginError": "An error occurred during login",
+    "loginSuccess": "Login successful",
+    "loggingIn": "Logging in...",
+    "emailRequired": "Email is required",
+    "passwordRequired": "Password is required",
+    "invalidEmail": "Please enter a valid email address",
+    "networkError": "Network error, please check your connection",
+    "serverError": "Server error, please try again later"
+    
   },
   "footer": {
     "description": "This is a demo site for Mkdirs, the ultimate directory website template",
@@ -114,6 +124,40 @@
       "privacy": "Privacy Policy",
       "terms": "Terms of Service",
       "sitemap": "Sitemap"
+    }
+  },
+  "signup": {
+    "createAccount": "Create Account",
+    "name": "Name",
+    "enterYourName": "Enter your name",
+    "email": "Email",
+    "password": "Password",
+    "orContinueWith": "Or continue with",
+    "signupWithGoogle": "Sign up with Google",
+    "signupWithGitHub": "Sign up with GitHub",
+    "alreadyHaveAccount": "Already have an account?",
+    "login": "Login",
+    "nameRequired": "Name is required",
+    "emailRequired": "Email is required",
+    "passwordRequired": "Password is required",
+    "invalidEmail": "Please enter a valid email",
+    "passwordTooShort": "Password must be at least 6 characters",
+    "emailExists": "Email already exists",
+    "signupError": "Failed to sign up",
+    "loginError": "Failed to log in",
+    "signupSuccess": "Sign up successful",
+    "signingUp": "Signing up..."
+  },
+  "userMenu": {
+    "signOut": "Sign out",
+    "profile": "Profile",
+    "settings": "Settings",
+    "myAccount": "My Account"
+  },
+  "auth": {
+    "errors": {
+      "loginFailed": "Login failed, please try again later",
+      "loginError": "An error occurred during login"
     }
   }
 } 

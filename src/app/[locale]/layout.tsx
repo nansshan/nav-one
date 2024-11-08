@@ -3,6 +3,8 @@ import { notFound } from 'next/navigation';
 import { ThemeProvider } from '@/components/providers/theme-provider';
 import { Header } from '@/components/Header';
 import { Footer } from '@/components/Footer';
+import AuthContext from "@/context/AuthContext"
+import { Toaster } from 'sonner'
 
 export function generateStaticParams() {
   return [{ locale: 'en' }, { locale: 'zh' }];
@@ -32,13 +34,25 @@ export default async function LocaleLayout({
           disableTransitionOnChange
         >
           <NextIntlClientProvider locale={locale} messages={messages}>
-            <div className="relative min-h-screen flex flex-col">
-              <Header />
-              <main className="flex-grow pt-[72px]">
-                {children}
-              </main>
-              <Footer />
-            </div>
+            <AuthContext>
+              <div className="relative min-h-screen flex flex-col">
+                <Header />
+                <main className="flex-grow pt-[72px]">
+                  {children}
+                  <Toaster
+                    position="top-center"
+                    expand={true}
+                    richColors
+                    closeButton
+                    duration={3000}
+                    style={{ 
+                      marginTop: '4rem' // 添加上边距，避免被header遮挡
+                    }}
+                  />
+                </main>
+                <Footer />
+              </div>
+            </AuthContext>
           </NextIntlClientProvider>
         </ThemeProvider>
       </body>

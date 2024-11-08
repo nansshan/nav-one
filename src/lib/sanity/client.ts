@@ -208,3 +208,53 @@ export const client = createClient({
       throw error;
     }
   }
+
+  export async function findUserByEmail(email: string) {
+    return client.fetch(
+      `*[_type == "user" && email == $email][0]`,
+      { email }
+    )
+  }
+  
+  // 生成随机字符串的辅助函数
+  function generateRandomString(length: number): string {
+    const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789'
+    let result = ''
+    for (let i = 0; i < length; i++) {
+      result += chars.charAt(Math.floor(Math.random() * chars.length))
+    }
+    return result
+  }
+  
+  // 修改用户创建接口定义
+  interface UserData {
+    email: string;
+    name: string;
+    image: string;
+    providerId: string;
+    provider: 'google' | 'github' | 'credentials';
+    password?: string; // 添加可选的密码字段
+  }
+
+  export async function createUser(userData: UserData) {
+    let password = userData.password;
+
+    // 如果没有提供密码（第三方登录），则生成随机密码
+    if (!password) {
+      const emailUsername = userData.email.split('@')[0];
+      const randomSuffix = generateRandomString(4);
+      password = `${emailUsername}${randomSuffix}`;
+    }
+    
+    return client.create({
+      _type: 'user',
+      email: userData.email,
+      name: userData.name,
+      image: userData.image,
+      providerId: userData.providerId,
+      provider: userData.provider,
+      password: password,
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+    })
+  }
